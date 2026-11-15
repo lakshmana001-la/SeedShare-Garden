@@ -1,0 +1,680 @@
+{
+  "info": {
+    "_postman_id": "seedshare-garden-collection-v1",
+    "name": "SeedShare Garden API",
+    "description": "Complete Postman collection for the SeedShare Garden backend API.\n\nIncludes all endpoints for Plots, Gardeners, Leases, the Join endpoint, and Soft Delete / Restore tests.\n\n**Base URL:** http://localhost:3000\n\n**How to use:**\n1. Start the server: `node server.js`\n2. Import this file into Postman\n3. Run the requests in order",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Plots",
+      "description": "CRUD operations for garden plots, including soft-delete and restore.",
+      "item": [
+        {
+          "name": "GET All Plots",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plots",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plots"]
+            },
+            "description": "Returns all active (non-deleted) plots. Expected status: 200."
+          },
+          "response": [
+            {
+              "name": "200 OK — All Plots",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"count\": 50,\n  \"data\": [\n    {\n      \"id\": 1,\n      \"plot_name\": \"Plot A1\",\n      \"soil_type\": \"Clay\",\n      \"size_sqm\": 20,\n      \"location\": \"North Section\",\n      \"sunlight\": \"Full Sun\",\n      \"water_source\": \"Tap\",\n      \"monthly_rent\": 15,\n      \"max_gardeners\": 1,\n      \"notes\": \"Near entrance gate\",\n      \"deleted\": 0,\n      \"created_at\": \"2024-01-01 10:00:00\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET One Plot",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plots/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plots", "1"]
+            },
+            "description": "Returns a single plot by ID. Returns 404 if deleted or not found."
+          },
+          "response": [
+            {
+              "name": "200 OK — Single Plot",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": 1,\n    \"plot_name\": \"Plot A1\",\n    \"soil_type\": \"Clay\",\n    \"size_sqm\": 20\n  }\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "body": "{\n  \"success\": false,\n  \"message\": \"Plot with ID 999 not found or has been deleted.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "POST Create Plot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plot_name\": \"Plot Z1\",\n  \"soil_type\": \"Loam\",\n  \"size_sqm\": 25,\n  \"location\": \"Test Section\",\n  \"sunlight\": \"Full Sun\",\n  \"water_source\": \"Tap\",\n  \"monthly_rent\": 18,\n  \"max_gardeners\": 2,\n  \"notes\": \"New test plot\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/plots",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plots"]
+            },
+            "description": "Creates a new plot. Required fields: plot_name, soil_type, size_sqm. Valid soil types: Clay, Loam, Sandy, Silt, Peat, Chalk."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"success\": true,\n  \"message\": \"Plot created successfully.\",\n  \"data\": {\n    \"id\": 51,\n    \"plot_name\": \"Plot Z1\",\n    \"soil_type\": \"Loam\",\n    \"size_sqm\": 25,\n    \"deleted\": 0\n  }\n}"
+            },
+            {
+              "name": "400 Validation Error",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed. Please fix the following errors:\",\n  \"errors\": [\"soil_type must be one of: Clay, Loam, Sandy, Silt, Peat, Chalk.\"]\n}"
+            }
+          ]
+        },
+        {
+          "name": "PUT Update Plot",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plot_name\": \"Plot A1 Updated\",\n  \"soil_type\": \"Loam\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/plots/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plots", "1"]
+            },
+            "description": "Updates the name and soil type of a plot. Both fields are required."
+          },
+          "response": [
+            {
+              "name": "200 OK — Updated",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": \"Plot with ID 1 updated successfully.\",\n  \"data\": {\n    \"id\": 1,\n    \"plot_name\": \"Plot A1 Updated\",\n    \"soil_type\": \"Loam\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "DELETE Plot (Soft Delete) — Test 1",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plots/9",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plots", "9"]
+            },
+            "description": "⭐ SOFT DELETE TEST 1: DELETE /plots/9 → Expected: 200 OK\nThis does NOT permanently remove the plot. It sets deleted = 1."
+          },
+          "response": [
+            {
+              "name": "200 OK — Soft Deleted",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": \"Plot \\\"Plot B4\\\" (ID: 9) has been soft-deleted. It can be restored.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET Deleted Plot — Test 2",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plots/9",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plots", "9"]
+            },
+            "description": "⭐ SOFT DELETE TEST 2: GET /plots/9 after deletion → Expected: 404 Not Found\nDeleted plots should not appear in GET responses."
+          },
+          "response": [
+            {
+              "name": "404 Not Found — Plot is deleted",
+              "status": "Not Found",
+              "code": 404,
+              "body": "{\n  \"success\": false,\n  \"message\": \"Plot with ID 9 not found or has been deleted.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "POST Restore Plot — Test 3",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plots/9/restore",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plots", "9", "restore"]
+            },
+            "description": "⭐ SOFT DELETE TEST 3: POST /plots/9/restore → Expected: 200 OK\nAfter restoring, GET /plots/9 should return 200."
+          },
+          "response": [
+            {
+              "name": "200 OK — Restored",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": \"Plot \\\"Plot B4\\\" (ID: 9) has been successfully restored.\",\n  \"data\": {\n    \"id\": 9,\n    \"plot_name\": \"Plot B4\",\n    \"soil_type\": \"Sandy\",\n    \"deleted\": 0\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET Restored Plot (After Test 3)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plots/9",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plots", "9"]
+            },
+            "description": "After restoring plot 9, this GET should return 200. Verifies the restore worked."
+          },
+          "response": [
+            {
+              "name": "200 OK — Plot Restored",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": 9,\n    \"plot_name\": \"Plot B4\",\n    \"soil_type\": \"Sandy\",\n    \"deleted\": 0\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET Plots — Search by Soil Type (Clay)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plots?soil=Clay",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plots"],
+              "query": [
+                {
+                  "key": "soil",
+                  "value": "Clay",
+                  "description": "Filter plots by soil type. Valid values: Clay, Loam, Sandy, Silt, Peat, Chalk"
+                }
+              ]
+            },
+            "description": "Returns only plots with soil type 'Clay'. Change the value to filter by other types."
+          },
+          "response": [
+            {
+              "name": "200 OK — Clay Plots",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"count\": 10,\n  \"data\": [\n    {\n      \"id\": 1,\n      \"plot_name\": \"Plot A1\",\n      \"soil_type\": \"Clay\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET Plots — Search by Soil Type (Loam)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plots?soil=Loam",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plots"],
+              "query": [
+                {
+                  "key": "soil",
+                  "value": "Loam"
+                }
+              ]
+            },
+            "description": "Filter plots by Loam soil type."
+          }
+        },
+        {
+          "name": "GET Plots — Search by Soil Type (Sandy)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plots?soil=Sandy",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plots"],
+              "query": [
+                {
+                  "key": "soil",
+                  "value": "Sandy"
+                }
+              ]
+            },
+            "description": "Filter plots by Sandy soil type."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gardeners",
+      "description": "CRUD operations for gardeners.",
+      "item": [
+        {
+          "name": "GET All Gardeners",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/gardeners",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "gardeners"]
+            },
+            "description": "Returns all active gardeners. Expected: 200."
+          }
+        },
+        {
+          "name": "GET One Gardener",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/gardeners/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "gardeners", "1"]
+            },
+            "description": "Returns a single gardener by ID."
+          }
+        },
+        {
+          "name": "POST Create Gardener",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"07700900099\",\n  \"address\": \"1 Garden Street\",\n  \"city\": \"London\",\n  \"postcode\": \"SW1A 2AA\",\n  \"experience_years\": 3,\n  \"membership_type\": \"standard\",\n  \"joined_date\": \"2024-01-01\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/gardeners",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "gardeners"]
+            },
+            "description": "Creates a new gardener. Required: first_name, last_name, email."
+          }
+        },
+        {
+          "name": "PUT Update Gardener",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Alice\",\n  \"last_name\": \"Green-Updated\",\n  \"phone\": \"07700000001\",\n  \"city\": \"Brighton\",\n  \"membership_type\": \"premium\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/gardeners/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "gardeners", "1"]
+            },
+            "description": "Updates gardener details."
+          }
+        },
+        {
+          "name": "DELETE Gardener (Deactivate)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/gardeners/50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "gardeners", "50"]
+            },
+            "description": "Deactivates a gardener (soft delete). Sets is_active = 0."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Leases",
+      "description": "CRUD operations for leases.",
+      "item": [
+        {
+          "name": "GET All Leases",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/leases",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "leases"]
+            },
+            "description": "Returns all leases with gardener name and plot name. Expected: 200."
+          }
+        },
+        {
+          "name": "GET One Lease",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/leases/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "leases", "1"]
+            },
+            "description": "Returns a single lease with full details."
+          }
+        },
+        {
+          "name": "POST Create Lease",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gardener_id\": 1,\n  \"plot_id\": 2,\n  \"start_date\": \"2024-06-01\",\n  \"end_date\": \"2025-05-31\",\n  \"status\": \"active\",\n  \"rent_paid\": 0,\n  \"payment_method\": \"bank transfer\",\n  \"agreement_signed\": 1,\n  \"notes\": \"New lease for testing\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/leases",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "leases"]
+            },
+            "description": "Creates a new lease. Required: gardener_id, plot_id, start_date."
+          }
+        },
+        {
+          "name": "PUT Update Lease",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"expired\",\n  \"rent_paid\": 180,\n  \"payment_method\": \"card\",\n  \"agreement_signed\": 1,\n  \"notes\": \"Lease expired - renewal pending\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/leases/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "leases", "1"]
+            },
+            "description": "Updates lease details like status, rent paid, notes."
+          }
+        },
+        {
+          "name": "DELETE Lease (Terminate)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/leases/50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "leases", "50"]
+            },
+            "description": "Terminates a lease (sets status to 'terminated')."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Join Endpoint",
+      "description": "SQL JOIN across all three tables.",
+      "item": [
+        {
+          "name": "GET Gardener-Plot Join",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/leases/join",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "leases", "join"]
+            },
+            "description": "Returns gardener name and plot name using SQL JOIN across leases, gardeners, and plots tables. Expected: 200."
+          },
+          "response": [
+            {
+              "name": "200 OK — Join Results",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"description\": \"Gardener name and plot name joined across all three tables (leases → gardeners → plots)\",\n  \"count\": 50,\n  \"data\": [\n    {\n      \"lease_id\": 1,\n      \"gardener_name\": \"Alice Green\",\n      \"gardener_email\": \"alice.green@email.com\",\n      \"plot_name\": \"Plot A1\",\n      \"soil_type\": \"Clay\",\n      \"location\": \"North Section\",\n      \"start_date\": \"2024-01-01\",\n      \"end_date\": \"2024-12-31\",\n      \"lease_status\": \"active\",\n      \"rent_paid\": 180\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "⭐ Soft Delete Tests (Run In Order)",
+      "description": "Run these three tests in order to verify soft delete and restore functionality.",
+      "item": [
+        {
+          "name": "Test 1 — DELETE /plots/9 → 200",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plots/9",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plots", "9"]
+            },
+            "description": "STEP 1: Soft-delete plot 9. Expected response: 200 OK."
+          }
+        },
+        {
+          "name": "Test 2 — GET /plots/9 → 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plots/9",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plots", "9"]
+            },
+            "description": "STEP 2: Try to get deleted plot 9. Expected response: 404 Not Found."
+          }
+        },
+        {
+          "name": "Test 3 — POST /plots/9/restore → 200",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plots/9/restore",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plots", "9", "restore"]
+            },
+            "description": "STEP 3: Restore deleted plot 9. Expected response: 200 OK."
+          }
+        },
+        {
+          "name": "Test 3 Verify — GET /plots/9 → 200",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plots/9",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plots", "9"]
+            },
+            "description": "VERIFICATION: After restoring, GET /plots/9 should return 200 OK."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Validation Error Tests",
+      "description": "Tests that verify proper validation error messages.",
+      "item": [
+        {
+          "name": "POST Plot — Missing Required Fields",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plot_name\": \"\",\n  \"soil_type\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/plots",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plots"]
+            },
+            "description": "Expected: 400 Bad Request with validation errors."
+          }
+        },
+        {
+          "name": "POST Plot — Invalid Soil Type",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plot_name\": \"Test Plot\",\n  \"soil_type\": \"Mud\",\n  \"size_sqm\": 20\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/plots",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plots"]
+            },
+            "description": "Expected: 400 — soil_type 'Mud' is not valid."
+          }
+        },
+        {
+          "name": "GET Plot — Non-Existent ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/plots/9999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plots", "9999"]
+            },
+            "description": "Expected: 404 — Plot ID 9999 does not exist."
+          }
+        },
+        {
+          "name": "POST Gardener — Invalid Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Test\",\n  \"last_name\": \"User\",\n  \"email\": \"not-an-email\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/gardeners",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "gardeners"]
+            },
+            "description": "Expected: 400 — invalid email format."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "seedshare-garden",
+  "version": "1.0.0",
+  "description": "SeedShare Garden — Backend API for managing garden plots, gardeners, and leases.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["garden", "express", "sqlite", "api", "backend"],
+  "author": "SeedShare Team",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^9.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.3"
+  }
+}
